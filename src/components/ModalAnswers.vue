@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, type Ref } from 'vue';
-import type { Answer } from '@/types/anwser';
+import type { Answer } from '@/types/answer';
 
 import Modal from '@/components/Modal.vue';
 
