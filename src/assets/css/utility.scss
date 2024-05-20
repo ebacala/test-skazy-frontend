@@ -1,0 +1,158 @@
+// Width
+.w-100 {
+  width: 100%;
+}
+
+// Text align
+.text-center {
+  text-align: center;
+}
+
+/* Flex */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-row-reverse {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-column-reverse {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.align-items-start {
+  align-items: flex-start;
+}
+
+.align-items-end {
+  align-items: flex-end;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.justify-content-start {
+  justify-content: flex-start;
+}
+
+.justify-content-end {
+  justify-content: flex-end;
+}
+
+.justify-content-space-between {
+  justify-content: space-between;
+}
+
+.justify-content-space-around {
+  justify-content: space-around;
+}
+
+/* Margin and padding */
+
+.m-auto {
+  margin: auto;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.p-auto {
+  margin: auto;
+}
+
+.px-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.py-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+@for $i from 0 through 10 {
+  $value: $i * 0.5;
+
+  // Margin
+  .m-#{$i} {
+    margin: #{$value}rem;
+  }
+
+  .my-#{$i} {
+    margin-top: #{$value}rem;
+    margin-bottom: #{$value}rem;
+  }
+
+  .mx-#{$i} {
+    margin-left: #{$value}rem;
+    margin-right: #{$value}rem;
+  }
+
+  .mt-#{$i} {
+    margin-top: #{$value}rem;
+  }
+
+  .mr-#{$i} {
+    margin-right: #{$value}rem;
+  }
+
+  .mb-#{$i} {
+    margin-bottom: #{$value}rem;
+  }
+
+  .ml-#{$i} {
+    margin-left: #{$value}rem;
+  }
+
+  // Padding
+  .p-#{$i} {
+    padding: #{$value}rem;
+  }
+
+  .py-#{$i} {
+    padding-top: #{$value}rem;
+    padding-bottom: #{$value}rem;
+  }
+
+  .px-#{$i} {
+    padding-left: #{$value}rem;
+    padding-right: #{$value}rem;
+  }
+
+  .pt-#{$i} {
+    padding-top: #{$value}rem;
+  }
+
+  .pr-#{$i} {
+    padding-right: #{$value}rem;
+  }
+
+  .pb-#{$i} {
+    margin-bottom: #{$value}rem;
+  }
+
+  .pl-#{$i} {
+    padding-left: #{$value}rem;
+  }
+}
