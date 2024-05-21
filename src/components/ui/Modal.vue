@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, Teleport } from 'vue'
 
-import Icon from '@/components/ui/icons/Icon.vue'
-
-const props = defineProps({
+defineProps({
   width: {
     type: String,
     default: 'auto'
@@ -23,14 +21,6 @@ defineExpose({ show, close })
     <dialog ref="dialog" class="flex-column p-2">
       <div class="dialog-header flex-row align-items-center justify-content-space-between mb-1">
         <slot name="title"> Modal </slot>
-
-        <Icon
-          name="close"
-          class="icon-close"
-          :hoverable="true"
-          @click="dialog?.close()"
-          tooltip="Close modal"
-        />
       </div>
 
       <hr />

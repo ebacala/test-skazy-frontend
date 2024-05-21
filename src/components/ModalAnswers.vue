@@ -6,26 +6,31 @@ import type { Answer } from '@/types/answer'
 import Icon from '@/components/ui/icons/Icon.vue'
 import Modal from '@/components/ui/Modal.vue'
 
-import { useFetch } from '@/composables/useApi'
+import { useFetch, useDelete, Status } from '@/composables/useApi'
+
 
 import { useAnswersStore } from '@/stores/answers'
 const store = useAnswersStore()
 
 const {
+    fetchData,
+    status: statusFetchAnswers,
     data: answers,
-    loading: loadingAnswers,
-    fetchData: fetchAnswers
-} = useFetch('/answers') as unknown as {
-    data: Ref<Answer[]>
-    loading: Ref<boolean>
-    fetchData: () => Promise<void>
+    reset
+} = useFetch()
+
+const fetchAnswers = () => {
+    fetchData("/answers").then(() => {
+        store.$patch({
+            answers: answers.value
+        })
+    })
 }
 
-watchEffect(() => {
-    store.$patch({
-        answers: answers.value
-    })
-})
+const setCurrentAnswer = (answer: Answer) => {
+    store.$patch({ currentAnswser: answer })
+    close()
+}
 
 const modalAnswsers = ref<HTMLDialogElement>()
 const show = () => {
@@ -34,27 +39,35 @@ const show = () => {
         fetchAnswers()
     }
 }
+const close = () => {
+    reset()
+    modalAnswsers.value?.close()
+}
 
-const close = () => modalAnswsers.value?.close()
+const {
+    deleteData,
+    status: statusDeleteAnswer
+} = useDelete()
 
-const setCurrentAnswer = (answer: Answer) => {
-    store.$patch({ currentAnswser: answer })
-    close()
+const deleteAnswer = (answer: Answer) => {
+    deleteData('/answer/' + answer.id, null).then(() => fetchAnswers())
 }
 
 defineExpose({ fetchAnswers, show, close })
 </script>
 
 <template>
-    <Modal ref="modalAnswsers" width="500px">
+    <Modal ref="modalAnswsers" width="600px">
         <template #title>
             <div class="flex-row align-items-center">
                 <h2 class="mx-1">Answers</h2>
-                <button :disabled="loadingAnswers" @click="fetchAnswers()">
-                    <Icon :name="loadingAnswers ? 'loadingSpinner' : 'refresh'" size="1rem"></Icon>
+                <button type="button" :disabled="statusFetchAnswers === Status.PENDING" @click="fetchAnswers()">
+                    <Icon :name="statusFetchAnswers === Status.PENDING ? 'loadingSpinner' : 'refresh'" size="1rem">
+                    </Icon>
                 </button>
             </div>
         </template>
+
         <template #body>
             <div v-if="!store.answers || store.answers.length === 0">
                 No answer found. You can either generate all the solutions or try to solve the riddle
@@ -62,9 +75,10 @@ defineExpose({ fetchAnswers, show, close })
             </div>
             <template v-else>
                 <p>Click on the answer to add it to the grid.</p>
-                <table>
+                <table class="w-100 my-1">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>a</th>
                             <th>b</th>
                             <th>c</th>
@@ -79,16 +93,21 @@ defineExpose({ fetchAnswers, show, close })
                     </thead>
                     <tbody>
                         <tr v-for="answer in store.answers" :key="answer.id" @click="setCurrentAnswer(answer)">
-                            <td>{{ answer.a }}</td>
-                            <td>{{ answer.b }}</td>
-                            <td>{{ answer.c }}</td>
-                            <td>{{ answer.d }}</td>
-                            <td>{{ answer.e }}</td>
-                            <td>{{ answer.f }}</td>
-                            <td>{{ answer.g }}</td>
-                            <td>{{ answer.h }}</td>
-                            <td>{{ answer.i }}</td>
-                            <td>{{ answer.isValid ? 'Yes' : 'No' }}</td>
+                            <td class="flex-row justify-content-center align-items-center">
+                                <Icon name="delete" color="var(--color-danger)" :hoverable="true"
+                                    @click.stop="deleteAnswer(answer)">
+                                </Icon>
+                            </td>
+                            <td class="text-center">{{ answer.a }}</td>
+                            <td class="text-center">{{ answer.b }}</td>
+                            <td class="text-center">{{ answer.c }}</td>
+                            <td class="text-center">{{ answer.d }}</td>
+                            <td class="text-center">{{ answer.e }}</td>
+                            <td class="text-center">{{ answer.f }}</td>
+                            <td class="text-center">{{ answer.g }}</td>
+                            <td class="text-center">{{ answer.h }}</td>
+                            <td class="text-center">{{ answer.i }}</td>
+                            <td class="text-center">{{ answer.isValid ? 'Yes' : 'No' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -105,38 +124,23 @@ defineExpose({ fetchAnswers, show, close })
 
 <style scoped>
 table {
-    width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 1em;
-    font-family: 'Arial', sans-serif;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 thead tr {
     background-color: #009879;
     color: #ffffff;
-    text-align: left;
     font-weight: bold;
 }
 
 th,
 td {
-    padding: 12px 15px;
+    padding: .5rem;
     border: 1px solid #dddddd;
-}
-
-tbody tr {
-    border-bottom: 1px solid #dddddd;
 }
 
 tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
-}
-
-tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
 }
 
 tbody tr:hover {

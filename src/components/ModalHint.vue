@@ -12,7 +12,7 @@ defineExpose({ show, close })
 </script>
 
 <template>
-  <Modal ref="modalHint" width="350px">
+  <Modal ref="modalHint" width="400px">
     <template #title>
       <h2>Hint</h2>
     </template>
@@ -32,6 +32,12 @@ defineExpose({ show, close })
       <p class="mb-1"><var>a + (13b / c) + d + 12e - f + (gh / i) = 87</var></p>
 
       <p>Now you should be able to find some solutions ✌️ (there are 128 solutions).</p>
+    </template>
+
+    <template #footer>
+      <button type="button" variant="secondary" class="m-1" @click="close()">
+        Close
+      </button>
     </template>
   </Modal>
 </template>

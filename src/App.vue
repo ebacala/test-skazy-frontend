@@ -15,9 +15,6 @@ const modalHint = ref();
 
 // Modal meant to display the list of all the answers
 const modalAnswsers = ref();
-const showAnswers = () => {
-  modalAnswsers.value.show();
-}
 
 // Modal to ask the user if they want to generate all the solutions
 const modalGenerate = ref();
@@ -94,8 +91,8 @@ const modalDeleteAllSolutions = ref();
       <div class="grid-item sign">:</div>
     </div>
 
-    <div class="flex-row align-items-center justify-content-center">
-      <button type="button" class="m-1" @click="showAnswers()">Show answers</button>
+    <div class="flex-row align-items-center justify-content-center flex-wrap">
+      <button type="button" class="m-1" @click="modalAnswsers?.show()">Show answers</button>
       <ModalAnswsers ref="modalAnswsers"></ModalAnswsers>
 
       <button type="button" class="m-1" @click="modalGenerate?.show()">Generate all solutions</button>

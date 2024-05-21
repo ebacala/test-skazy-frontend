@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   name: {
@@ -45,13 +45,9 @@ const updateHoverStyle = (opacity: string) => {
 </script>
 
 <template>
-  <i
-    v-html="icon"
-    :style="{ height: size, width: size, color: color, ...dynamicStyle }"
-    @mouseover="props.hoverable && updateHoverStyle('0.5')"
-    @mouseleave="props.hoverable && updateHoverStyle('1')"
-    :title="tooltip"
-  />
+  <i v-html="icon" :style="{ height: size, width: size, color: color, ...dynamicStyle }"
+    @mouseover="props.hoverable && updateHoverStyle('0.5')" @mouseleave="props.hoverable && updateHoverStyle('1')"
+    :title="tooltip" />
 </template>
 
 <style scoped>
