@@ -1,77 +1,109 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
-import type { Answer } from '@/types/answer';
+import { ref, type Ref, watchEffect } from 'vue'
 
-import Modal from '@/components/Modal.vue';
+import type { Answer } from '@/types/answer'
 
-import { useFetch } from '@/composables/useApi';
+import Icon from '@/components/ui/icons/Icon.vue'
+import Modal from '@/components/ui/Modal.vue'
 
-const modalAnswsers = ref<HTMLDialogElement>();
+import { useFetch } from '@/composables/useApi'
 
-const show = () => modalAnswsers.value?.show();
-const close = () => modalAnswsers.value?.close();
+import { useAnswersStore } from '@/stores/answers'
+const store = useAnswersStore()
 
-const { data: answers, loading: loadingAnswers, fetchData: fetchAnswers } = useFetch('/answers') as unknown as { data: Ref<Answer[]>, loading: Ref<Boolean>, fetchData: () => Promise<void> };
+const {
+    data: answers,
+    loading: loadingAnswers,
+    fetchData: fetchAnswers
+} = useFetch('/answers') as unknown as {
+    data: Ref<Answer[]>
+    loading: Ref<boolean>
+    fetchData: () => Promise<void>
+}
 
-defineEmits(['answerSelected']);
-defineExpose({ fetchAnswers, show, close });
+watchEffect(() => {
+    store.$patch({
+        answers: answers.value
+    })
+})
+
+const modalAnswsers = ref<HTMLDialogElement>()
+const show = () => {
+    modalAnswsers.value?.show()
+    if (!store.answers || store.answers.length === 0) {
+        fetchAnswers()
+    }
+}
+
+const close = () => modalAnswsers.value?.close()
+
+const setCurrentAnswer = (answer: Answer) => {
+    store.$patch({ currentAnswser: answer })
+    close()
+}
+
+defineExpose({ fetchAnswers, show, close })
 </script>
 
 <template>
-    <Modal ref="modalAnswsers">
+    <Modal ref="modalAnswsers" width="500px">
         <template #title>
-            <h2>Answers</h2>
-        </template>
-        <template #default>
-            <div class="modal-answers-loading" v-if="loadingAnswers">Loading...</div>
-            <div v-else>
-                <div v-if="!answers || answers.length === 0">No answer found. You can either generate all the solutions
-                    or try to
-                    solve the riddle yourself 😁.</div>
-                <template v-else>
-                    <p>Click on the answer to add it to the grid.</p>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>a</th>
-                                <th>b</th>
-                                <th>c</th>
-                                <th>d</th>
-                                <th>e</th>
-                                <th>f</th>
-                                <th>g</th>
-                                <th>h</th>
-                                <th>i</th>
-                                <th>Is valid</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="answer in answers" :key="answer.id" @click="$emit('answerSelected', answer)">
-                                <td>{{ answer.a }}</td>
-                                <td>{{ answer.b }}</td>
-                                <td>{{ answer.c }}</td>
-                                <td>{{ answer.d }}</td>
-                                <td>{{ answer.e }}</td>
-                                <td>{{ answer.f }}</td>
-                                <td>{{ answer.g }}</td>
-                                <td>{{ answer.h }}</td>
-                                <td>{{ answer.i }}</td>
-                                <td>{{ answer.isValid ? "Yes" : "No" }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </template>
+            <div class="flex-row align-items-center">
+                <h2 class="mx-1">Answers</h2>
+                <button :disabled="loadingAnswers" @click="fetchAnswers()">
+                    <Icon :name="loadingAnswers ? 'loadingSpinner' : 'refresh'" size="1rem"></Icon>
+                </button>
             </div>
+        </template>
+        <template #body>
+            <div v-if="!store.answers || store.answers.length === 0">
+                No answer found. You can either generate all the solutions or try to solve the riddle
+                yourself 😁.
+            </div>
+            <template v-else>
+                <p>Click on the answer to add it to the grid.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>a</th>
+                            <th>b</th>
+                            <th>c</th>
+                            <th>d</th>
+                            <th>e</th>
+                            <th>f</th>
+                            <th>g</th>
+                            <th>h</th>
+                            <th>i</th>
+                            <th>Is valid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="answer in store.answers" :key="answer.id" @click="setCurrentAnswer(answer)">
+                            <td>{{ answer.a }}</td>
+                            <td>{{ answer.b }}</td>
+                            <td>{{ answer.c }}</td>
+                            <td>{{ answer.d }}</td>
+                            <td>{{ answer.e }}</td>
+                            <td>{{ answer.f }}</td>
+                            <td>{{ answer.g }}</td>
+                            <td>{{ answer.h }}</td>
+                            <td>{{ answer.i }}</td>
+                            <td>{{ answer.isValid ? 'Yes' : 'No' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+        </template>
+
+        <template #footer>
+            <button type="button" variant="secondary" class="m-1" @click="close()">
+                Close
+            </button>
         </template>
     </Modal>
 </template>
 
 <style scoped>
-.modal-answers-loading {
-    width: 300px;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -111,4 +143,4 @@ tbody tr:hover {
     background-color: #f1f1f1;
     cursor: pointer;
 }
-</style>@/types/answer
+</style>

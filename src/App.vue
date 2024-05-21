@@ -3,17 +3,12 @@ import { ref } from 'vue';
 
 import ModalHint from "@/components/ModalHint.vue";
 import ModalAnswsers from "@/components/ModalAnswers.vue";
-import type { Answer } from './types/answer';
+import ModalGenerate from "@/components/ModalGenerate.vue";
+import ModalSendAnswer from "@/components/ModalSendAnswer.vue";
+import ModalDeleteAllSolutions from '@/components/ModalDeleteAllSolutions.vue';
 
-const a = ref();
-const b = ref();
-const c = ref();
-const d = ref();
-const e = ref();
-const f = ref();
-const g = ref();
-const h = ref();
-const i = ref();
+import { useAnswersStore } from "@/stores/answers";
+const store = useAnswersStore();
 
 // Modal meant to display the hint
 const modalHint = ref();
@@ -22,26 +17,21 @@ const modalHint = ref();
 const modalAnswsers = ref();
 const showAnswers = () => {
   modalAnswsers.value.show();
-  modalAnswsers.value.fetchAnswers();
-}
-const addAnswerToGrid = (answer: Answer) => {
-  a.value = answer.a;
-  b.value = answer.b;
-  c.value = answer.c;
-  d.value = answer.d;
-  e.value = answer.e;
-  f.value = answer.f;
-  g.value = answer.g;
-  h.value = answer.h;
-  i.value = answer.i;
-  modalAnswsers.value.close();
 }
 
+// Modal to ask the user if they want to generate all the solutions
+const modalGenerate = ref();
+
+// Modal to ask to user if they want to send the current anwser
+const modalSendAnswer = ref();
+
+// Modal to ask the user if they want to delete all the solutions from the database
+const modalDeleteAllSolutions = ref();
 </script>
 
 <template>
-  <main class="flex-column align-items-center justify-content-center">
-    <h1 class="m-3">Welcome to this 🇻🇳 riddle!</h1>
+  <main class="flex-column align-items-center justify-content-center p-3">
+    <h1 class="m-3 text-center">Welcome to this 🇻🇳 riddle!</h1>
     <p>The goal of this riddle is to fill the colored squares (starting from the top left) with digits from 1 to 9
       in
       order to solve the equation.</p>
@@ -50,12 +40,15 @@ const addAnswerToGrid = (answer: Answer) => {
     <button type="button" class="m-1" @click="modalHint?.show()">Hint</button>
     <ModalHint ref="modalHint"></ModalHint>
 
-    <div class="grid-container m-2">
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="a"></input></div>
+    <div class="grid-container m-1">
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.a"></input></div>
       <div class="grid-item empty"></div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="e"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.e"></input></div>
       <div class="grid-item sign">-</div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="f"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.f"></input></div>
       <div class="grid-item empty"></div>
       <div class="grid-item result">66</div>
       <div class="grid-item sign">+</div>
@@ -79,25 +72,42 @@ const addAnswerToGrid = (answer: Answer) => {
       <div class="grid-item sign">+</div>
       <div class="grid-item empty"></div>
       <div class="grid-item sign">-</div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="b"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.b"></input></div>
       <div class="grid-item empty"></div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="d"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.d"></input></div>
       <div class="grid-item empty"></div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="g"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.g"></input></div>
       <div class="grid-item empty"></div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="i"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.i"></input></div>
       <div class="grid-item sign">:</div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="c"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.c"></input></div>
       <div class="grid-item sign">+</div>
       <div class="grid-item empty"></div>
       <div class="grid-item sign">x</div>
-      <div class="grid-item unknown"><input type="number" min="1" max="9" v-model="h"></input></div>
+      <div class="grid-item unknown"><input type="number" min="1" max="9"
+          v-model.number="store.currentAnswser.h"></input></div>
       <div class="grid-item sign">:</div>
     </div>
 
     <div class="flex-row align-items-center justify-content-center">
       <button type="button" class="m-1" @click="showAnswers()">Show answers</button>
-      <ModalAnswsers ref="modalAnswsers" @answer-selected="addAnswerToGrid"></ModalAnswsers>
+      <ModalAnswsers ref="modalAnswsers"></ModalAnswsers>
+
+      <button type="button" class="m-1" @click="modalGenerate?.show()">Generate all solutions</button>
+      <ModalGenerate ref="modalGenerate"></ModalGenerate>
+
+      <button type="button" class="m-1" :disabled="!store.isCurrentAnswerComplete" @click="modalSendAnswer?.show()">Send
+        answer</button>
+      <ModalSendAnswer ref="modalSendAnswer"></ModalSendAnswer>
+
+      <button type="button" variant="danger" class="m-1" @click="modalDeleteAllSolutions?.show()">Delete all the
+        solutions</button>
+      <ModalDeleteAllSolutions ref="modalDeleteAllSolutions"></ModalDeleteAllSolutions>
     </div>
   </main>
 </template>
@@ -108,8 +118,7 @@ const addAnswerToGrid = (answer: Answer) => {
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(6, 1fr);
   gap: .5px;
-  padding: 10px;
-  width: 50%;
+  max-width: 90%;
   height: 50%;
 }
 
@@ -120,6 +129,10 @@ const addAnswerToGrid = (answer: Answer) => {
   justify-content: center;
   padding: 10px;
   text-align: center;
+  max-height: 100px;
+  height: 100%;
+  width: 100%;
+  aspect-ratio: 1;
 
   input {
     text-align: center;
@@ -137,6 +150,10 @@ const addAnswerToGrid = (answer: Answer) => {
   /* Firefox */
   input[type=number] {
     -moz-appearance: textfield;
+  }
+
+  input {
+    padding: .1rem;
   }
 }
 
