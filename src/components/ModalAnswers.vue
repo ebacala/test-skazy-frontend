@@ -21,12 +21,13 @@ const {
 
 const fetchAnswers = () => {
     fetchData("/answers").then(() => {
-        store.$patch({
-            answers: answers.value
-        })
+        if (answers.value) {
+            store.$patch({
+                answers: answers.value
+            })
+        }
     })
 }
-
 const setCurrentAnswer = (answer: Answer) => {
     store.$patch({ currentAnswser: answer })
     close()
