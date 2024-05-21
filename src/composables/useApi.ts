@@ -9,137 +9,72 @@ export enum Status {
     ERROR = 'error'
 }
 
-export const useFetch = () => {
+function useApi() {
     const status = ref<Status>(Status.IDLE);
-    const data = ref<any>(null)
-    const error = ref<any>(null)
-    const httpCode = ref<number>(0)
-    const message = ref<string | null>(null)
+    const data = ref(null);
+    const error = ref(null);
+    const message = ref<string | null>(null);
 
     const reset = () => {
-        status.value = Status.IDLE
-        data.value = null
-        error.value = null
-        httpCode.value = 0
-        message.value = null
-    }
+        status.value = Status.IDLE;
+        data.value = null;
+        error.value = null;
+        message.value = null;
+    };
 
-    const fetchData = (endpoint: string) => {
-        status.value = Status.PENDING
+    const makeRequest = (endpoint: string, method: 'GET' | 'POST' | 'DELETE' | 'PUT', body?: any) => {
+        status.value = Status.PENDING;
 
-        return fetch(BASE_URL + endpoint, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((res) => {
+        const options: RequestInit = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+        };
+
+        if (body) options.body = JSON.stringify(body);
+
+        return fetch(BASE_URL + endpoint, options)
+            .then(res => {
                 if (res.ok) {
-                    status.value = Status.SUCCESS
+                    status.value = Status.SUCCESS;
                 } else {
-                    status.value = Status.ERROR
+                    status.value = Status.ERROR;
                 }
-                httpCode.value = res.status
 
-                return res.json()
+                return res.json();
             })
-            .then((json) => {
-                data.value = json
-                message.value = json.message ? json.message : null
+            .then(json => {
+                data.value = json;
+                message.value = json.message || null;
             })
+            .catch(err => {
+                status.value = Status.ERROR;
+                error.value = err;
+            });
+    };
 
-    }
-
-    return { status, data, error, httpCode, message, fetchData, reset }
+    return { status, data, error, message, makeRequest, reset };
 }
+
+export const useFetch = () => {
+    const { status, data, error, message, makeRequest, reset } = useApi();
+    const fetchData = (endpoint: string) => makeRequest(endpoint, 'GET');
+    return { status, data, error, message, fetchData, reset };
+};
 
 export const useCreate = () => {
-    const status = ref<Status>(Status.IDLE);
-    const data = ref<any>(null)
-    const error = ref<any>(null)
-    const httpCode = ref<number>(0)
-    const message = ref<string | null>(null)
+    const { status, data, error, message, makeRequest, reset } = useApi();
+    const createData = (endpoint: string, body: any) => makeRequest(endpoint, 'POST', body);
+    return { status, data, error, message, createData, reset };
+};
 
-    const reset = () => {
-        status.value = Status.IDLE
-        data.value = null
-        error.value = null
-        httpCode.value = 0
-        message.value = null
-    }
-
-    const createData = (endpoint: string, body: any) => {
-        status.value = Status.PENDING
-
-        return fetch(BASE_URL + endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body ? body : {})
-        })
-            .then((res) => {
-                if (res.ok) {
-                    status.value = Status.SUCCESS
-                } else {
-                    status.value = Status.ERROR
-                }
-                httpCode.value = res.status
-
-                return res.json()
-            })
-            .then((json) => {
-                data.value = json
-                message.value = json.message ? json.message : null
-            })
-
-    }
-
-    return { status, data, error, httpCode, message, createData, reset }
-}
-
+export const useUpdate = () => {
+    const { status, data, error, message, makeRequest, reset } = useApi();
+    const updateData = (endpoint: string, body: any) => makeRequest(endpoint, 'PUT', body);
+    return { status, data, error, message, updateData, reset };
+};
 
 export const useDelete = () => {
-    const status = ref<Status>(Status.IDLE);
-    const data = ref<any>(null)
-    const error = ref<any>(null)
-    const httpCode = ref<number>(0)
-    const message = ref<string | null>(null)
-
-    const reset = () => {
-        status.value = Status.IDLE
-        data.value = null
-        error.value = null
-        httpCode.value = 0
-        message.value = null
-    }
-
-    const deleteData = (endpoint: string, body: any) => {
-        status.value = Status.PENDING
-
-        return fetch(BASE_URL + endpoint, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body ? body : {})
-        })
-            .then((res) => {
-                if (res.ok) {
-                    status.value = Status.SUCCESS
-                } else {
-                    status.value = Status.ERROR
-                }
-                httpCode.value = res.status
-
-                return res.json()
-            })
-            .then((json) => {
-                data.value = json
-                message.value = json.message ? json.message : null
-            })
-
-    }
-
-    return { status, data, error, httpCode, message, deleteData, reset }
-}
+    const { status, data, error, message, makeRequest, reset } = useApi();
+    const deleteData = (endpoint: string, body: any) => makeRequest(endpoint, 'DELETE', body);
+    return { status, data, error, message, deleteData, reset };
+};

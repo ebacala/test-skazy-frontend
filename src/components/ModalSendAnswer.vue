@@ -21,7 +21,6 @@ const {
   createData: createAnswer,
   status: statusSendAnswer,
   message: messageSendAnswer,
-  error: errorSendAnswer,
   reset
 } = useCreate()
 
@@ -41,7 +40,7 @@ defineExpose({ show, close })
     </template>
 
     <template #footer>
-      <button type="button" v-if="[Status.IDLE, Status.PENDING, Status.ERROR].includes(statusSendAnswer)" class="m-1"
+      <button type="button" v-if="[Status.IDLE, Status.PENDING].includes(statusSendAnswer)" class="m-1"
         :disabled="statusSendAnswer === Status.PENDING" @click="createAnswer('/answer', {
         a: store.currentAnswser.a,
         b: store.currentAnswser.b,
