@@ -28,7 +28,7 @@ defineExpose({ show, close })
 </script>
 
 <template>
-  <Modal ref="modalSendAnswer">
+  <Modal ref="modalSendAnswer" width="400px">
     <template #title>
       <h2>Send Answer</h2>
     </template>

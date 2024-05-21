@@ -26,7 +26,7 @@ defineExpose({ show, close })
 </script>
 
 <template>
-  <Modal ref="modalDeleteAllAnswers">
+  <Modal ref="modalDeleteAllAnswers" width="400px">
     <template #title>
       <h2>Delete all the answers</h2>
     </template>
